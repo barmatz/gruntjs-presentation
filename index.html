@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Grunt: The JavaScript Task Runner</title>
+		<meta name="description" content="">
+		<meta name="author" content="Or Barmatz">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-markdown>
+					<script type="text/template">
+					# GRUNT
+					## The JavaScript Task Runner
+					![](images/logo-grunt.png) 
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## What is it good for? 
+
+					* minification
+					* compilation
+					* unit testing
+					* linting
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## Write once run everywhere!
+
+					![](images/logo-win.png)
+					![](images/logo-mac.png)
+					![](images/logo-linux.png)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## We have plugins!!
+
+					![](images/logo-coffeescript.jpg)
+					![](images/logo-handlebars.jpg)
+					![](images/logo-jade.jpg)
+					![](images/logo-jshint.jpg)
+					![](images/logo-less.jpg)
+					![](images/logo-requirejs.jpg)
+					![](images/logo-sass.jpg)
+					![](images/logo-sylus.jpg)
+
+					[full list](http://gruntjs.com/plugins/)
+					</script>
+				</section>
+				<section>
+					<h2>On to the boring stuff</h2>
+					<pre class="terminal">
+<span class="command-prompt">grunt</span> 
+Running "jshint:gruntfile" (jshint) task
+<span class="green">&gt;&gt;</span> 1 file lint free.
+ 
+Running "jshint:src" (jshint) task
+<span class="green">&gt;&gt;</span> 1 file lint free.
+ 
+Running "jshint:test" (jshint) task
+<span class="green">&gt;&gt;</span> 1 file lint free.
+ 
+Running "qunit:files" (qunit) task
+Testing test/tiny-pubsub.html....<span class="green">OK</span>
+<span class="green">&gt;&gt;</span> 4 assertions passed (23ms)
+ 
+Running "clean:files" (clean) task
+Cleaning "dist"...<span class="green">OK</span>
+ 
+Running "concat:dist" (concat) task
+File "dist/ba-tiny-pubsub.js" created.
+ 
+Running "uglify:dist" (uglify) task
+File "dist/ba-tiny-pubsub.min.js" created.
+Uncompressed size: <span class="green">389</span> bytes.
+Compressed size: <span class="green">119</span> bytes gzipped (<span class="green">185</span> bytes minified).
+ 
+<span class="green">Done, without errors.</span>
+ 
+<span class="command-prompt active"><span class="active-prompt"></span></span>
+					</pre>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## Getting started
+
+					Grunt and Grunt plugins are installed and managed via npm, the Node.js package manager.	
+
+						npm install -g grunt-cli
+
+					This will put the grunt command in your system path, allowing it to be run from any directory.
+
+					> Note that installing grunt-cli does not install the Grunt task runner! This allows multiple versions of Grunt to be installed on the same machine simultaneously.
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## Working with an existing Grunt project
+
+					1. Change to the project root directory
+					2. Intall project dependencies with `npm install`
+					3. Run Grunt with `grunt`
+
+					Installed grunt tasks can be listed by running `grunt --help`
+					</script>
+				</section>
+				<section>
+					<section data-markdown>
+						<script type="text/template">
+						## package.json
+
+						The `package.json` is our manifest and goes in the project root directory.
+
+						When you run `npm install` it will install the correct version of each dependency listed therein.
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Create a package.json file for your project
+
+						*	Most `grunt-init` templates will automatically create a project-specific `package.json` file
+						*	The `npm init` command will create a basic `package.json` file
+						*	Start with the example below, and expand as needed, following this specification
+									{
+										"name": "my-project-name",
+										"version": "0.1.0",
+										"devDependencies": {
+											"grunt": "~0.4.1",
+											"grunt-contrib-jshint": "~0.6.3",
+											"grunt-contrib-nodeunit": "~0.2.0",
+											"grunt-contrib-uglify": "~0.2.2"
+										}
+									}
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Insalling Grunt and plugins
+
+						By using the following command `npm` will install the module locally and add it to the `devDependencies` section in your `package.json` file
+
+							npm isntall MODULE_NAME --save-dev
+						</script>
+					</section>
+				</section>
+				<section>
+					<section data-markdown>
+						<script type="text/template">
+						## gruntfile.js
+
+						The `gruntfile.js` or `gruntfile.coffee` file is a valid JavaScript or CoffeeScript file that sits along side the `package.json` file in the root of the project.
+
+						A Gruntfile is comprised of the following parts:
+
+						* The "wrapper" function
+						* Project and task configuration
+						* Loading Grunt plugins and tasks
+						* Custom tasks
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+
+	module.exports = function(grunt) {
+
+		// Project configuration.
+		grunt.initConfig({
+			pkg: grunt.file.readJSON('package.json'),
+			uglify: {
+				options: {
+					banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+				},
+				build: {
+					src: 'src/<%= pkg.name %>.js',
+					dest: 'build/<%= pkg.name %>.min.js'
+				}
+			}
+		});
+
+		// Load the plugin that provides the "uglify" task.
+		grunt.loadNpmTasks('grunt-contrib-uglify');
+
+		// Default task(s).
+		grunt.registerTask('default', ['uglify']);
+
+	};
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## The "wrapper" function
+
+							Every `gruntfile` (and `gruntplugin`) uses this basic format, and all of your Grunt code must be specified inside this function
+
+								 module.exports = function(grunt) {
+								  // Do grunt-related things in here
+								};
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## Project and task configuration
+
+							Most Grunt tasks rely on configuration data defined in an object passed to the grunt.initConfig method.
+
+								// Project configuration.
+								grunt.initConfig({
+								  pkg: grunt.file.readJSON('package.json'),
+								  uglify: {
+								    options: {
+								      banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+								    },
+								    build: {
+								      src: 'src/<%= pkg.name %>.js',
+								      dest: 'build/<%= pkg.name %>.min.js'
+								    }
+								  }
+								});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## Loading Grunt plugins and tasks
+
+							As long as a plugin is specified in `package.json` as a dependency, and has been installed via `npm install`, it may be enabled inside your `gruntfile` with a simple command.
+
+								// Load the plugin that provides the "uglify" task.
+								grunt.loadNpmTasks('grunt-contrib-uglify');
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## Custom tasks
+
+							You can configure Grunt to run one or more tasks by default by defining a `default` task
+
+								// Default task(s).
+								grunt.registerTask('default', ['uglify']);
+
+							If your project requires tasks not provided by a Grunt plugin, you may define custom tasks right inside the `gruntfile`
+
+								module.exports = function(grunt) {
+
+									// A very basic default task.
+									grunt.registerTask('default', 'Log some stuff.', function() {
+										grunt.log.write('Logging some stuff...').ok();
+									});
+
+								};
+
+							Custom project-specific tasks do not need to be defined in the `gruntfile`; they may be defined in external `.js` files and loaded via the `grunt.loadTasks method`.
+						</script>
+					</section>
+				</section>
+				<section>
+					<section data-markdown>
+						<script type="text/template">
+						## Task Configuration and Targets
+
+						When a task is run, Grunt looks for its configuration under a property of the same name.
+
+						Multi-tasks can have multiple configurations, defined using arbitrarily named targets.
+
+							grunt.initConfig({
+								concat: {
+									foo: {
+								 		// concat task "foo" target options and files go here.
+								 	},
+									bar: {
+									// concat task "bar" target options and files go here.
+									},
+								},
+								uglify: {
+									bar: {
+									// uglify task "bar" target options and files go here.
+									},
+								},
+							});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Options
+
+						Inside a task configuration, an `options` property may be specified to override built-in defaults. In addition, each target may have an `options` property which is specific to that target. Target-level options will override task-level options.
+
+							grunt.initConfig({
+								concat: {
+									options: {
+									// Task-level options may go here, overriding task defaults.
+									},
+									foo: {
+										options: {
+										// "foo" target options may go here, overriding task-level options.
+										},
+									},
+									bar: {
+									// No options specified; this target will use task-level options.
+									},
+								},
+							});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Files
+
+						Because most tasks perform file operations, Grunt has powerful abstractions for declaring on which files the task should operate.
+
+						All files formats support `src` and `dest` but the "Compact" and "Files Array" formats support a few additional properties
+
+						*	`filter` Either a valid fs.Stats method name or a function that is passed the matched `src` filepath and returns `true` or `false`.
+						*	`nonull` When a match is not found, return a list containing the pattern itself. Otherwise, an empty list is returned if there are no matches. Combined with the grunt `--verbose` flag, this option can help debug file path issues.
+						*	`dot` Allow patterns to match filenames starting with a period, even if the pattern does not explicitly have a period in that spot.
+						*	`matchBase` If set, patterns without slashes will be matched against the basename of the path if it contains slashes. For example, a?b would match the path `/xyz/123/acb`, but not `/xyz/acb/123`.
+						*	`expand` Process a dynamic src-dest file mapping.
+						*	Other properties will be passed into the underlying libs as matching options.
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Compact Format
+
+						This form allows a single src-dest (source-destination) file mapping per-target.
+
+							grunt.initConfig({
+								jshint: {
+									foo: {
+										src: ['src/aa.js', 'src/aaa.js']
+									},
+								},
+								concat: {
+									bar: {
+										src: ['src/bb.js', 'src/bbb.js'],
+										dest: 'dest/b.js'
+									},
+								}
+							});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Files Object Format
+
+						This form supports multiple src-dest mappings per-target, where the property name is the destination file, and its value is the source file(s).
+
+							grunt.initConfig({
+								concat: {
+									foo: {
+										files: {
+											'dest/a.js': ['src/aa.js', 'src/aaa.js'],
+											'dest/a1.js': ['src/aa1.js', 'src/aaa1.js']
+										}
+									}
+								},
+								bar: {
+									files: {
+										'dest/b.js': ['src/bb.js', 'src/bbb.js'],
+										'dest/b1.js': ['src/bb1.js', 'src/bbb1.js']
+										},
+									}
+								}
+							});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Files Array Format
+
+						This form supports multiple src-dest file mappings per-target, while also allowing additional properties per mapping.
+
+							grunt.initConfig({
+								concat: {
+								foo: {
+									files: [
+										{src: ['src/aa.js', 'src/aaa.js'], dest: 'dest/a.js'},
+										{src: ['src/aa1.js', 'src/aaa1.js'], dest: 'dest/a1.js'}
+									]
+								},
+								bar: {
+									files: [
+										{src: ['src/bb.js', 'src/bbb.js'], dest: 'dest/b/', nonull: true},
+										{src: ['src/bb1.js', 'src/bbb1.js'], dest: 'dest/b1/', filter: 'isFile'}
+									]
+								}
+							});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Custom Filter Function
+
+						The `filter` property can help you target files with a greater level of detail. Simply use a valid fs.Stats method name.
+							
+							grunt.initConfig({
+								clean: {
+									foo: {
+										src: ['tmp/**/*'],
+										filter: 'isFile'
+									}
+								}
+							});
+
+						Or create your own `filter` function and return `true` or `false` whether the file should be matched.
+
+							grunt.initConfig({
+								clean: {
+									foo: {
+										src: ['tmp/**/*'],
+										filter: function(filepath) {
+											return (grunt.file.isDir(filepath) && require('fs').readdirSync(filepath).length === 0);
+										}
+									}
+								}
+							});
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Building the files object dynamically
+
+						When you want to process many individual files, a few additional properties may be used to build a files list dynamically. 
+
+						*	`*` matches any number of characters, but not `/`
+						*	`?` matches a single character, but not `/`
+						*	`**` matches any number of characters, including `/`, as long as it is the only thing in a path part
+						*	`{}` allows for a comma-separated list of "or" expressions
+						*	`!` at the beginning of a pattern will negate the match
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Globbing patterns
+
+						*	`expand` Set to `true` to enable the following options:
+						*	`cwd` All `src` matches are relative to (but do not include) this path.
+						*	`src` Pattern(s) to match, relative to the `cwd`.
+						*	`dest` Destination path prefix.
+						*	`ext` Replace any existing extension with this value in generated `dest` paths.
+						*	`flatten` Remove all path parts from generated `dest` paths.
+						*	`rename` This function is called for each matched `src` file, (after extension renaming and flattening). The `dest` and matched `src` path are passed in, and this function must return a new `dest` value. If the same `dest` is returned more than once, each `src` which used it will be added to an array of sources for it.
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						## Templates
+
+						Templates specified using `<% %>` delimiters will be automatically expanded when tasks read them from the config. Templates are expanded recursively until no more remain.
+
+						The entire config object is the context in which properties are resolved. Additionally, grunt and its methods are available inside templates, eg. `<%= grunt.template.today('yyyy-mm-dd') %>`.
+
+						*	`<%= prop.subprop %>` Expand to the value of `prop.subprop` in the config, regardless of type. Templates like this can be used to reference not only string values, but also arrays or other objects.
+						*	`<% %>` Execute arbitrary inline JavaScript code. This is useful with control flow or looping.
+						</script>
+					</section>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## Importing external data
+
+					Grunt has grunt.file.readJSON and grunt.file.readYAML methods for importing JSON and YAML data.
+
+						grunt.initConfig({
+							pkg: grunt.file.readJSON('package.json'),
+							uglify: {
+								options: {
+									banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+								},
+								dist: {
+									src: 'src/<%= pkg.name %>.js',
+									dest: 'dist/<%= pkg.name %>.min.js'
+								}
+							}
+						});
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## FAQ
+
+					### Does Grunt work on Windows?
+
+					Grunt works fine on Windows, because Node.js and npm both work fine on Windows. Usually the problematic part is Cygwin, because it bundles an outdated version of Node.js.
+
+					The best way to avoid this issue is to use the msysGit installer to install the git binary and the Node.js installer to install the node and npm binaries, and to use the built-in Windows command prompt or PowerShell instead of Cygwin.
+
+					More at
+					[http://gruntjs.com/frequently-asked-questions](http://gruntjs.com/frequently-asked-questions)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					## Who uses Grunt?
+
+					![](images/logo-twitter.jpg)
+					![](images/logo-jquery.jpg)
+					![](images/logo-adobe.jpg)
+					![](images/logo-modernizr.jpg)
+					![](images/logo-bocoup.jpg)
+					![](images/logo-fg.jpg)
+					![](images/logo-saucelabs.jpg)
+					![](images/logo-bitovi.jpg)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					### Thank you!
+
+					[@barmatz](http://twitter.com/barmatz)
+					</script>
+				</section>
+			</div>
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+		<script>
+			Reveal.initialize({
+				width: '90%',
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+		</script>
+	</body>
+</html>
